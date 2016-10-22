@@ -1,12 +1,15 @@
 package hu.experiment_team.adiss.androidclient;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import java.io.IOException;
@@ -17,6 +20,8 @@ import java.net.Socket;
 public class NetworkService extends Service {
 
     private static final String TAG = "NetworkService";
+    private static final String EXTRA_SERVER_MESSAGE = "hu.experiment_team.adiss.androidclient.server_message";
+
     private final IBinder mBinder = new NetworkBinder();
 
     private String serverIp = "192.168.1.179";
@@ -28,7 +33,7 @@ public class NetworkService extends Service {
 
     private Handler handler = new Handler();
 
-    public class NetworkBinder extends Binder {
+    class NetworkBinder extends Binder {
         NetworkService getService(){
             return NetworkService.this;
         }
@@ -37,8 +42,11 @@ public class NetworkService extends Service {
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
      */
-    public NetworkService() {
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId){
         new Thread(new TCPClientThread()).start();
+        return START_STICKY;
     }
 
     @Nullable
@@ -47,10 +55,10 @@ public class NetworkService extends Service {
         return mBinder;
     }
 
-    public void sendMessage(Object message){
+    void sendMessage(Object message){
         class TCPClientWriteThread implements Runnable {
-            Object message;
-            TCPClientWriteThread(Object msg) {
+            private Object message;
+            private TCPClientWriteThread(Object msg) {
                 message = msg;
             }
             @Override
@@ -65,6 +73,7 @@ public class NetworkService extends Service {
         }
         new Thread(new TCPClientWriteThread(message)).start();
     }
+
 
     /*
     *   TCP Client implementation
@@ -90,6 +99,9 @@ public class NetworkService extends Service {
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
+                                    Intent response = new Intent(EXTRA_SERVER_MESSAGE);
+                                    response.putExtra(EXTRA_SERVER_MESSAGE, (String)finalServerIn);
+                                    LocalBroadcastManager.getInstance(NetworkService.this).sendBroadcast(response);
                                     Log.d(TAG, (String)finalServerIn);
                                 }
                             });
