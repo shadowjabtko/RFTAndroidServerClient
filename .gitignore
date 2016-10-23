@@ -1,3 +1,12 @@
 *.iml
 */.idea
+*.class
 AndroidPCServer/out/*
+AndroidClient/*.iml
+AndroidClient/.gradle
+AndroidClient/local.properties
+AndroidClient/.idea/workspace.xml
+AndroidClient/.idea/libraries
+AndroidClient/.DS_Store
+AndroidClient/build
+AndroidClient/captures
