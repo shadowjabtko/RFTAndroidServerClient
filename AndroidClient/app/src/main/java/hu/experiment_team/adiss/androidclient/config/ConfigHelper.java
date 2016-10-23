@@ -10,11 +10,15 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * Created by Adiss on 2016.10.23..
+ * Class that helps in the configuration of the application.
+ * @author Jakab Ádám
  */
 public class ConfigHelper {
     private static final String TAG = "ConfigHelper";
 
+    /**
+     * Reads the 'res/raw/config.properties' and returns the proper element.
+     * */
     public static String getConfigValue(Context context, String name) {
         Resources resources = context.getResources();
 
